@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>印艺成本管家 | 精准开料优化 | 折叠面板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f2f4f6;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 24px 20px 48px;
+            color: #1e2a3a;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 28px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 500;
+            letter-spacing: -0.3px;
+            color: #1e2a3a;
+            margin-bottom: 6px;
+        }
+
+        /* 简约卡片 */
+        .card {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.05);
+            padding: 20px 18px;
+            border: 1px solid #eef2f6;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #eef2f6;
+            padding-bottom: 12px;
+            color: #0f172a;
+        }
+
+        /* 可折叠卡片样式 */
+        .collapsible-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #eef2f6;
+            margin-bottom: 24px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .collapsible-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            cursor: pointer;
+            background: #fafcff;
+            transition: background 0.1s;
+            font-weight: 500;
+            border-bottom: 1px solid #eef2f6;
+        }
+
+        .collapsible-card .card-header:hover {
+            background: #f1f5f9;
+        }
+
+        .collapsible-card .card-header .title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .collapsible-card .card-content {
+            padding: 20px 18px;
+        }
+
+        .toggle-icon {
+            font-size: 0.8rem;
+            color: #8192aa;
+        }
+
+        /* 方案列表样式 */
+        .scheme-list, .demand-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .scheme-item {
+            border: 1px solid #eef2f8;
+            border-radius: 18px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .scheme-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            background: #fafcff;
+            cursor: pointer;
+            border-bottom: 1px solid #eef2f8;
+        }
+
+        .scheme-title {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+        .scheme-title input {
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: 1px solid #cfdee9;
+            border-radius: 20px;
+            padding: 4px 8px;
+            width: 150px;
+            background: white;
+        }
+
+        .scheme-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .scheme-content {
+            padding: 16px;
+            display: none;
+        }
+
+        .scheme-content.open {
+            display: block;
+        }
+
+        .calc-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .calc-group {
+            flex: 1;
+            min-width: 130px;
+        }
+
+        .calc-group label {
+            display: block;
+            font-size: 0.75rem;
+            color: #5b6e8c;
+            margin-bottom: 4px;
+        }
+
+        .calc-group input {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #cfdee9;
+            border-radius: 28px;
+            font-size: 0.85rem;
+        }
+
+        .btn-sm {
+            background: #eef2fa;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .btn-sm:hover {
+            background: #e2e8f0;
+        }
+
+        .result-area {
+            background: #f8fafd;
+            border-radius: 16px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 0.9rem;
+        }
+
+        .result-main {
+            font-weight: 600;
+            color: #1e4620;
+            margin-bottom: 6px;
+        }
+
+        .advice {
+            background: #fff8e7;
+            border-left: 3px solid #f5b042;
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #8a6300;
+        }
+
+        /* 纸张需求区域 */
+        .demand-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .demand-row input {
+            flex: 1;
+            min-width: 100px;
+            padding: 6px 10px;
+            border: 1px solid #cfdee9;
+            border-radius: 28px;
+        }
+
+        .total-paper {
+            background: #eef2ff;
+            padding: 12px;
+            border-radius: 20px;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+
+        /* 报价四面板布局 */
+        .quote-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .quote-grid .card,
+        .quote-grid .collapsible-card {
+            flex: 1;
+            min-width: 280px;
+            margin-bottom: 0;
+        }
+
+        /* 品类折叠样式 + 移动按钮 */
+        .category-container {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fafcff;
+            padding: 8px 12px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.1s;
+            border: 1px solid #eef2f8;
+            margin-bottom: 4px;
+        }
+
+        .category-name {
+            font-weight: 500;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .category-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .move-btn {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            color: #8192aa;
+            padding: 2px 6px;
+            border-radius: 20px;
+        }
+        .move-btn:hover {
+            background: #eef2f6;
+        }
+
+        .del-cat-btn {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            color: #9aa9bf;
+            padding: 2px 6px;
+            border-radius: 20px;
+        }
+
+        .del-cat-btn:hover {
+            background: #fee2e2;
+            color: #c2412c;
+        }
+
+        .specs-wrapper {
+            padding: 8px 0 12px 20px;
+            margin-left: 8px;
+            border-left: 2px solid #eef2f6;
+            display: none;
+        }
+
+        .specs-wrapper.open {
+            display: block;
+        }
+
+        .spec-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            flex-wrap: wrap;
+        }
+
+        .spec-name {
+            flex: 2;
+            font-size: 0.85rem;
+            color: #334155;
+        }
+
+        .spec-price-input {
+            width: 90px;
+            padding: 6px 8px;
+            border: 1px solid #cfdee9;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .del-spec-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9aa9bf;
+            font-size: 1rem;
+            padding: 4px;
+        }
+
+        .add-spec-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .add-spec-form input {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1px solid #cfdee9;
+            border-radius: 24px;
+            font-size: 0.8rem;
+        }
+
+        .add-category-area {
+            margin-top: 16px;
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid #eef2f6;
+            padding-top: 16px;
+        }
+
+        /* 报价行样式 */
+        .quote-items {
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .quote-row {
+            background: #fafcff;
+            border-radius: 18px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #eef2f8;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quote-cat-select, .quote-spec-select {
+            flex: 1.2;
+            min-width: 110px;
+            padding: 6px 8px;
+            border-radius: 28px;
+            border: 1px solid #cfdee9;
+            background: white;
+            font-size: 0.8rem;
+        }
+
+        .quote-quantity {
+            width: 80px;
+            padding: 6px;
+            border-radius: 28px;
+            border: 1px solid #cfdee9;
+            text-align: center;
+        }
+
+        .quote-subtotal {
+            min-width: 70px;
+            font-weight: 600;
+            color: #2c553c;
+            background: #f0f9f0;
+            padding: 4px 10px;
+            border-radius: 28px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .del-quote-btn {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            color: #a3b3cc;
+            padding: 4px;
+        }
+
+        .total-area {
+            background: #f8fafd;
+            padding: 12px 16px;
+            border-radius: 20px;
+            margin-top: 12px;
+            border: 1px solid #e6edf4;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .grand-total {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e4620;
+            border-top: 1px dashed #cfdee9;
+            padding-top: 6px;
+            margin-top: 4px;
+        }
+
+        .add-quote-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid #cbdde9;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        hr {
+            margin: 8px 0;
+        }
+
+        small {
+            color: #7d8ea3;
+            font-size: 0.7rem;
+        }
+
+        /* 利润人工卡片样式 */
+        .profit-card {
+            background: #fefce8;
+            border-color: #fde68a;
+        }
+        .profit-input-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .profit-item {
+            flex: 1;
+            min-width: 150px;
+        }
+        .profit-item label {
+            display: block;
+            font-size: 0.75rem;
+            color: #5b6e8c;
+            margin-bottom: 4px;
+        }
+        .profit-item input, .profit-item select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #cfdee9;
+            border-radius: 28px;
+            font-size: 0.9rem;
+        }
+        .labor-list {
+            margin: 12px 0;
+        }
+        .labor-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            background: #fef9e6;
+            padding: 8px;
+            border-radius: 20px;
+        }
+        .labor-item select, .labor-item input {
+            padding: 6px 10px;
+            border-radius: 28px;
+            border: 1px solid #cfdee9;
+            background: white;
+        }
+        .final-result {
+            background: #f0fdf4;
+            padding: 16px;
+            border-radius: 20px;
+            margin-top: 16px;
+            border: 1px solid #bbf7d0;
+        }
+        .final-result div {
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+        .final-result .highlight {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #166534;
+        }
+
+        /* 恢复按钮容器 - 缩小按钮 */
+        .restore-panel-buttons {
+            display: none;
+            text-align: center;
+            padding: 12px 0;
+            gap: 12px;
+            justify-content: center;
+        }
+        .restore-btn {
+            background: #eef2fa;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.1s;
+            color: #1e2f44;
+        }
+        .restore-btn:hover {
+            background: #e2e8f0;
+        }
+
+        @media (max-width: 1000px) {
+            .quote-grid {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📦 印艺成本管家</h1>
+    </div>
+
+    <!-- 1. 纸张开料计算器 -->
+    <div class="collapsible-card" id="paperCalcCard">
+        <div class="card-header" id="paperCalcHeader">
+            <div class="title"><span>📐 纸张开料计算器</span><span class="toggle-icon" id="paperCalcToggleIcon">▼</span></div>
+        </div>
+        <div class="card-content" id="paperCalcContent">
+            <div id="paperSchemesContainer" class="scheme-list"></div>
+            <button id="addPaperSchemeBtn" class="btn-sm" style="margin-top:12px;">+ 新增开料方案</button>
+        </div>
+    </div>
+
+    <!-- 2. 纸张需求计算器 -->
+    <div class="collapsible-card" id="paperDemandCard">
+        <div class="card-header" id="paperDemandHeader">
+            <div class="title"><span>📄 纸张需求计算器</span><span class="toggle-icon" id="demandToggleIcon">▼</span></div>
+        </div>
+        <div class="card-content" id="paperDemandContent">
+            <div id="demandListContainer" class="demand-list"></div>
+            <button id="addDemandBtn" class="btn-sm" style="margin-top:8px;">+ 添加需求项</button>
+            <div class="total-paper" id="totalPaperNeeded">📊 总计需要纸张：0 张</div>
+            <small>💡 单张开数 = 每个成品占用纸张数量（例如1张纸可开4个，则填4）</small>
+        </div>
+    </div>
+
+    <!-- 四面板报价系统 -->
+    <div class="quote-grid">
+        <!-- 统一工艺库 -->
+        <div class="collapsible-card" id="craftCard">
+            <div class="card-header" id="craftCollapseHeader">
+                <div class="title"><span>🎨 统一工艺库</span><span class="toggle-icon" id="craftToggleIcon">▼</span></div>
+                <span style="font-size:0.7rem;">↑↓ 可排序</span>
+            </div>
+            <div class="card-content" id="craftCollapseContent">
+                <div id="craftListContainer"></div>
+                <div class="add-category-area">
+                    <input type="text" id="newCraftName" placeholder="新工艺名称" autocomplete="off">
+                    <button class="btn-sm" id="addCraftBtn">+ 添加</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统一材料库 -->
+        <div class="collapsible-card" id="materialCard">
+            <div class="card-header" id="materialCollapseHeader">
+                <div class="title"><span>📚 统一材料库</span><span class="toggle-icon" id="materialToggleIcon">▼</span></div>
+                <span style="font-size:0.7rem;">↑↓ 可排序</span>
+            </div>
+            <div class="card-content" id="materialCollapseContent">
+                <div id="materialListContainer"></div>
+                <div class="add-category-area">
+                    <input type="text" id="newMaterialName" placeholder="新材料名称" autocomplete="off">
+                    <button class="btn-sm" id="addMaterialBtn">+ 添加</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 恢复隐藏面板的按钮容器（缩小版） -->
+        <div id="restorePanelButtons" class="restore-panel-buttons">
+            <button id="restoreCraftBtn" class="restore-btn">↺ 恢复工艺库</button>
+            <button id="restoreMaterialBtn" class="restore-btn">↺ 恢复材料库</button>
+        </div>
+
+        <!-- 灰板报价面板 -->
+        <div class="card">
+            <div class="card-title">📦 灰板报价</div>
+            <div>
+                <div style="font-size:0.85rem; font-weight:500; margin-bottom:6px;">➕ 工艺项</div>
+                <div id="grayCraftQuoteList" class="quote-items"></div>
+                <div style="font-size:0.85rem; font-weight:500; margin:12px 0 6px;">➕ 材料项</div>
+                <div id="grayMaterialQuoteList" class="quote-items"></div>
+                <div class="add-quote-buttons">
+                    <button id="addGrayCraftQuoteBtn" class="btn-outline">+ 添加工艺</button>
+                    <button id="addGrayMaterialQuoteBtn" class="btn-outline">+ 添加材料</button>
+                </div>
+                <div class="total-area">
+                    <div class="total-row"><span>🎨 工艺小计</span><span id="grayCraftTotal">0.00</span></div>
+                    <div class="total-row"><span>📦 材料小计</span><span id="grayMaterialTotal">0.00</span></div>
+                    <div class="total-row grand-total"><span>灰板合计</span><span id="grayTotal">0.00</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 面纸报价面板 -->
+        <div class="card">
+            <div class="card-title">📄 面纸报价</div>
+            <div>
+                <div style="font-size:0.85rem; font-weight:500; margin-bottom:6px;">➕ 工艺项</div>
+                <div id="faceCraftQuoteList" class="quote-items"></div>
+                <div style="font-size:0.85rem; font-weight:500; margin:12px 0 6px;">➕ 材料项</div>
+                <div id="faceMaterialQuoteList" class="quote-items"></div>
+                <div class="add-quote-buttons">
+                    <button id="addFaceCraftQuoteBtn" class="btn-outline">+ 添加工艺</button>
+                    <button id="addFaceMaterialQuoteBtn" class="btn-outline">+ 添加材料</button>
+                </div>
+                <div class="total-area">
+                    <div class="total-row"><span>🎨 工艺小计</span><span id="faceCraftTotal">0.00</span></div>
+                    <div class="total-row"><span>📦 材料小计</span><span id="faceMaterialTotal">0.00</span></div>
+                    <div class="total-row grand-total"><span>面纸合计</span><span id="faceTotal">0.00</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 总成本汇总 -->
+    <div class="card" style="background: #fefce8; border-color: #fde68a;">
+        <div class="card-title">💰 总成本汇总</div>
+        <div class="total-row" style="font-size:1.1rem;"><span>灰板总价</span><span id="summaryGray">0.00</span></div>
+        <div class="total-row" style="font-size:1.1rem;"><span>面纸总价</span><span id="summaryFace">0.00</span></div>
+        <div class="total-row grand-total" style="font-size:1.5rem;"><span>总成本</span><span id="summaryTotal">0.00</span></div>
+    </div>
+
+    <!-- 人工 & 利润计算卡片 -->
+    <div class="card profit-card">
+        <div class="card-title">👥 人工费用 & 📈 利润计算</div>
+        <div>
+            <div style="margin: 0 0 8px 0; font-weight:500;">🧑‍💼 人工费用 (可选择模式)</div>
+            <div id="laborListContainer" class="labor-list"></div>
+            <button id="addLaborBtn" class="btn-sm" style="margin-bottom: 16px;">+ 添加人工项</button>
+
+            <div style="margin: 16px 0 8px 0; font-weight:500;">📈 利润 & 系数</div>
+            <div class="profit-input-group">
+                <div class="profit-item">
+                    <label>成品数量 (个)</label>
+                    <input type="number" id="productQty" value="1000" step="1" min="1">
+                </div>
+                <div class="profit-item">
+                    <label>利润方式</label>
+                    <select id="profitType">
+                        <option value="percent">百分比 (%)</option>
+                        <option value="fixed">固定金额 (元)</option>
+                    </select>
+                </div>
+                <div class="profit-item">
+                    <label id="profitLabel">利润百分比 (%)</label>
+                    <input type="number" id="profitValue" value="20" step="0.1">
+                </div>
+                <div class="profit-item">
+                    <label>最终系数 (乘数)</label>
+                    <input type="number" id="coefficient" value="1.0" step="0.01">
+                </div>
+            </div>
+
+            <div class="final-result">
+                <div>👥 人工合计: <strong id="laborTotal">0.00</strong> 元</div>
+                <div>💰 利润金额: <strong id="profitAmount">0.00</strong> 元</div>
+                <div>📊 最终总价 = (成本 + 利润 + 人工) × 系数: <strong id="finalTotal" class="highlight">0.00</strong> 元</div>
+                <div>🎯 单个产品价格: <strong id="unitPrice" class="highlight">0.00</strong> 元/个</div>
+            </div>
+            <small>💡 利润按总成本计算，人工可添加多项(数量×单价或固定金额)，最终价格 = (总成本 + 利润金额 + 人工总额) × 系数</small>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==================== 数据定义 ====================
+    let craftItems = [];
+    let materialItems = [];
+    let grayCraftQuotes = [];
+    let grayMaterialQuotes = [];
+    let faceCraftQuotes = [];
+    let faceMaterialQuotes = [];
+    let laborItems = [];
+
+    const STORAGE_CRAFT = 'unified_craft_items_v7';
+    const STORAGE_MATERIAL = 'unified_material_items_v7';
+    const STORAGE_GRAY_CRAFT = 'gray_craft_quotes_v7';
+    const STORAGE_GRAY_MATERIAL = 'gray_material_quotes_v7';
+    const STORAGE_FACE_CRAFT = 'face_craft_quotes_v7';
+    const STORAGE_FACE_MATERIAL = 'face_material_quotes_v7';
+    const STORAGE_LABOR = 'labor_items_v7';
+
+    function generateId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 6); }
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+    // 迁移旧数据
+    function migrateLaborItems(data) {
+        if (!data || !Array.isArray(data)) return [];
+        return data.map(item => {
+            if (item.type) return item;
+            if (item.amount !== undefined && item.quantity === undefined) {
+                return { id: item.id, name: item.name, type: 'fixed', fixedAmount: item.amount };
+            } else if (item.quantity !== undefined) {
+                return { id: item.id, name: item.name, type: 'qty_price', quantity: item.quantity || 1, unitPrice: item.unitPrice || 0 };
+            }
+            return { id: item.id, name: item.name, type: 'qty_price', quantity: 1, unitPrice: 0 };
+        });
+    }
+
+    // ---------- 加载默认数据 ----------
+    function loadDefaultData() {
+        craftItems = [
+            { id: generateId(), name: "✨ 烫金", isOpen: false, specs: [{ id: generateId(), name: "A5 面积", price: 1.20 }, { id: generateId(), name: "A4 面积", price: 2.50 }] },
+            { id: generateId(), name: "🛡️ 覆膜", isOpen: false, specs: [{ id: generateId(), name: "哑膜", price: 1.50 }, { id: generateId(), name: "亮膜", price: 1.30 }] }
+        ];
+        materialItems = [
+            { id: generateId(), name: "📦 灰板", isOpen: false, specs: [{ id: generateId(), name: "350g", price: 8.50 }, { id: generateId(), name: "450g", price: 10.20 }] },
+            { id: generateId(), name: "📄 面纸", isOpen: false, specs: [{ id: generateId(), name: "珠光纸", price: 3.20 }, { id: generateId(), name: "纹理纸", price: 4.50 }] }
+        ];
+        const firstCraft = craftItems[0];
+        const firstMaterial = materialItems[0];
+        grayCraftQuotes = [{ id: generateId(), categoryId: firstCraft.id, specId: firstCraft.specs[0].id, quantity: 100 }];
+        grayMaterialQuotes = [{ id: generateId(), categoryId: firstMaterial.id, specId: firstMaterial.specs[0].id, quantity: 200 }];
+        faceCraftQuotes = [{ id: generateId(), categoryId: firstCraft.id, specId: firstCraft.specs[1].id, quantity: 150 }];
+        faceMaterialQuotes = [{ id: generateId(), categoryId: firstMaterial.id, specId: firstMaterial.specs[1].id, quantity: 300 }];
+        laborItems = [{ id: generateId(), name: "人工费", type: 'qty_price', quantity: 2, unitPrice: 250 }];
+        saveAllData();
+    }
+
+    function saveAllData() {
+        localStorage.setItem(STORAGE_CRAFT, JSON.stringify(craftItems));
+        localStorage.setItem(STORAGE_MATERIAL, JSON.stringify(materialItems));
+        localStorage.setItem(STORAGE_GRAY_CRAFT, JSON.stringify(grayCraftQuotes));
+        localStorage.setItem(STORAGE_GRAY_MATERIAL, JSON.stringify(grayMaterialQuotes));
+        localStorage.setItem(STORAGE_FACE_CRAFT, JSON.stringify(faceCraftQuotes));
+        localStorage.setItem(STORAGE_FACE_MATERIAL, JSON.stringify(faceMaterialQuotes));
+        localStorage.setItem(STORAGE_LABOR, JSON.stringify(laborItems));
+    }
+
+    function initData() {
+        const storedCraft = localStorage.getItem(STORAGE_CRAFT);
+        const storedMaterial = localStorage.getItem(STORAGE_MATERIAL);
+        const storedGrayCraft = localStorage.getItem(STORAGE_GRAY_CRAFT);
+        const storedGrayMaterial = localStorage.getItem(STORAGE_GRAY_MATERIAL);
+        const storedFaceCraft = localStorage.getItem(STORAGE_FACE_CRAFT);
+        const storedFaceMaterial = localStorage.getItem(STORAGE_FACE_MATERIAL);
+        const storedLabor = localStorage.getItem(STORAGE_LABOR);
+        if (storedCraft && storedMaterial && storedGrayCraft && storedGrayMaterial && storedFaceCraft && storedFaceMaterial && storedLabor) {
+            try {
+                craftItems = JSON.parse(storedCraft);
+                materialItems = JSON.parse(storedMaterial);
+                grayCraftQuotes = JSON.parse(storedGrayCraft);
+                grayMaterialQuotes = JSON.parse(storedGrayMaterial);
+                faceCraftQuotes = JSON.parse(storedFaceCraft);
+                faceMaterialQuotes = JSON.parse(storedFaceMaterial);
+                let rawLabor = JSON.parse(storedLabor);
+                laborItems = migrateLaborItems(rawLabor);
+                const validCraftIds = new Set(craftItems.map(c => c.id));
+                const validMaterialIds = new Set(materialItems.map(m => m.id));
+                grayCraftQuotes = grayCraftQuotes.filter(q => validCraftIds.has(q.categoryId) && craftItems.find(c=>c.id===q.categoryId)?.specs.some(s=>s.id===q.specId));
+                grayMaterialQuotes = grayMaterialQuotes.filter(q => validMaterialIds.has(q.categoryId) && materialItems.find(m=>m.id===q.categoryId)?.specs.some(s=>s.id===q.specId));
+                faceCraftQuotes = faceCraftQuotes.filter(q => validCraftIds.has(q.categoryId) && craftItems.find(c=>c.id===q.categoryId)?.specs.some(s=>s.id===q.specId));
+                faceMaterialQuotes = faceMaterialQuotes.filter(q => validMaterialIds.has(q.categoryId) && materialItems.find(m=>m.id===q.categoryId)?.specs.some(s=>s.id===q.specId));
+                if (!Array.isArray(laborItems)) laborItems = [];
+                if (craftItems.length === 0 && materialItems.length === 0) throw new Error();
+            } catch(e) { loadDefaultData(); }
+        } else { loadDefaultData(); }
+        saveAllData();
+    }
+
+    // ---------- 工艺库/材料库渲染 ----------
+    function renderItemsLibrary(containerId, items, type) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        if (items.length === 0) { container.innerHTML = `<div style="padding:20px;text-align:center;color:#9aaebf;">暂无数据，点击上方添加</div>`; return; }
+        let html = '';
+        items.forEach((cat, idx) => {
+            const isOpen = cat.isOpen === true;
+            const specsHtml = cat.specs.map(spec => `
+                <div class="spec-item" data-cat-id="${cat.id}" data-spec-id="${spec.id}">
+                    <span class="spec-name">${escapeHtml(spec.name)}</span>
+                    <input type="number" class="spec-price-input" data-cat="${cat.id}" data-spec="${spec.id}" value="${spec.price.toFixed(2)}" step="0.01">
+                    <button class="del-spec-btn" data-cat="${cat.id}" data-spec="${spec.id}">✕</button>
+                </div>
+            `).join('');
+            html += `
+                <div class="category-container" data-cat-id="${cat.id}">
+                    <div class="category-header" data-cat-id="${cat.id}">
+                        <div class="category-name">
+                            <span class="toggle-icon">${isOpen ? '▼' : '▶'}</span>
+                            ${escapeHtml(cat.name)}
+                        </div>
+                        <div class="category-actions">
+                            <button class="move-btn up-btn" data-idx="${idx}" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''}>↑</button>
+                            <button class="move-btn down-btn" data-idx="${idx}" ${idx === items.length-1 ? 'disabled style="opacity:0.3;"' : ''}>↓</button>
+                            <button class="del-cat-btn" data-cat-id="${cat.id}">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="specs-wrapper ${isOpen ? 'open' : ''}">
+                        ${specsHtml}
+                        <div class="add-spec-form">
+                            <input type="text" class="new-spec-name" placeholder="规格名称">
+                            <input type="number" class="new-spec-price" placeholder="单价">
+                            <button class="btn-sm add-spec-btn" data-cat-id="${cat.id}">+ 添加规格</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+
+        container.querySelectorAll('.category-header').forEach(header => {
+            header.addEventListener('click', (e) => {
+                if (e.target.classList.contains('del-cat-btn') || e.target.classList.contains('move-btn')) return;
+                const catId = header.getAttribute('data-cat-id');
+                const cat = items.find(c => c.id === catId);
+                if (cat) { cat.isOpen = !cat.isOpen; saveAllData(); renderItemsLibrary(containerId, items, type); renderAllQuotePanels(); }
+            });
+        });
+        container.querySelectorAll('.up-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                if (idx > 0) { [items[idx-1], items[idx]] = [items[idx], items[idx-1]]; saveAllData(); renderItemsLibrary(containerId, items, type); renderAllQuotePanels(); }
+            });
+        });
+        container.querySelectorAll('.down-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                if (idx < items.length-1) { [items[idx+1], items[idx]] = [items[idx], items[idx+1]]; saveAllData(); renderItemsLibrary(containerId, items, type); renderAllQuotePanels(); }
+            });
+        });
+        container.querySelectorAll('.spec-price-input').forEach(inp => {
+            inp.addEventListener('change', (e) => {
+                const catId = inp.getAttribute('data-cat'), specId = inp.getAttribute('data-spec');
+                let newPrice = parseFloat(inp.value); if (isNaN(newPrice)) newPrice = 0;
+                const cat = items.find(c => c.id === catId);
+                if (cat) { const spec = cat.specs.find(s => s.id === specId); if (spec) { spec.price = newPrice; saveAllData(); renderAllQuotePanels(); } }
+            });
+        });
+        container.querySelectorAll('.del-spec-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const catId = btn.getAttribute('data-cat'), specId = btn.getAttribute('data-spec');
+                const cat = items.find(c => c.id === catId);
+                if (cat) {
+                    cat.specs = cat.specs.filter(s => s.id !== specId);
+                    const quotes = type === 'craft' ? [grayCraftQuotes, faceCraftQuotes] : [grayMaterialQuotes, faceMaterialQuotes];
+                    quotes.forEach(quotesArr => {
+                        const idx = quotesArr.findIndex(q => q.categoryId === catId && q.specId === specId);
+                        if (idx !== -1) quotesArr.splice(idx, 1);
+                    });
+                    saveAllData(); renderItemsLibrary(containerId, items, type); renderAllQuotePanels();
+                }
+            });
+        });
+        container.querySelectorAll('.add-spec-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const catId = btn.getAttribute('data-cat-id');
+                const wrapper = btn.closest('.specs-wrapper');
+                const nameInput = wrapper.querySelector('.new-spec-name'), priceInput = wrapper.querySelector('.new-spec-price');
+                let name = nameInput.value.trim(), price = parseFloat(priceInput.value);
+                if (!name) return alert('请输入规格名称');
+                if (isNaN(price)) price = 0;
+                const cat = items.find(c => c.id === catId);
+                if (cat) { cat.specs.push({ id: generateId(), name: name, price: price }); saveAllData(); renderItemsLibrary(containerId, items, type); renderAllQuotePanels(); }
+            });
+        });
+        container.querySelectorAll('.del-cat-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const catId = btn.getAttribute('data-cat-id');
+                const idx = items.findIndex(c => c.id === catId);
+                if (idx !== -1) items.splice(idx, 1);
+                const quotes = type === 'craft' ? [grayCraftQuotes, faceCraftQuotes] : [grayMaterialQuotes, faceMaterialQuotes];
+                quotes.forEach(quotesArr => {
+                    for (let i=quotesArr.length-1; i>=0; i--) if (quotesArr[i].categoryId === catId) quotesArr.splice(i,1);
+                });
+                saveAllData(); renderItemsLibrary(containerId, items, type); renderAllQuotePanels();
+            });
+        });
+    }
+
+    // 报价列表渲染
+    function renderQuoteList(containerId, quotes, isCraft) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const items = isCraft ? craftItems : materialItems;
+        if (quotes.length === 0) { container.innerHTML = `<div style="padding:16px;text-align:center;color:#9aaebf;">暂无项目，点击上方按钮添加</div>`; return; }
+        let html = '';
+        quotes.forEach(quote => {
+            const category = items.find(c => c.id === quote.categoryId);
+            if (!category) return;
+            const spec = category.specs.find(s => s.id === quote.specId);
+            if (!spec) return;
+            const subtotal = spec.price * quote.quantity;
+            const catOptions = items.map(c => `<option value="${c.id}" ${c.id === quote.categoryId ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('');
+            const currentCat = items.find(c => c.id === quote.categoryId);
+            const specOptions = currentCat ? currentCat.specs.map(s => `<option value="${s.id}" ${s.id === quote.specId ? 'selected' : ''}>${escapeHtml(s.name)} (¥${s.price.toFixed(2)})</option>`).join('') : '';
+            html += `<div class="quote-row" data-id="${quote.id}">
+                        <select class="quote-cat-select" data-id="${quote.id}">${catOptions}</select>
+                        <select class="quote-spec-select" data-id="${quote.id}" data-cat="${quote.categoryId}">${specOptions}</select>
+                        <input type="number" class="quote-quantity" data-id="${quote.id}" value="${quote.quantity}" step="1" min="0">
+                        <div class="quote-subtotal">¥ ${subtotal.toFixed(2)}</div>
+                        <button class="del-quote-btn" data-id="${quote.id}">✕</button>
+                    </div>`;
+        });
+        container.innerHTML = html;
+        container.querySelectorAll('.quote-cat-select').forEach(sel => {
+            sel.addEventListener('change', (e) => {
+                const id = sel.getAttribute('data-id');
+                const newCatId = sel.value;
+                const quote = quotes.find(q => q.id === id);
+                if (quote) {
+                    const itemsList = isCraft ? craftItems : materialItems;
+                    const newCat = itemsList.find(c => c.id === newCatId);
+                    if (newCat && newCat.specs.length > 0) {
+                        quote.categoryId = newCatId;
+                        quote.specId = newCat.specs[0].id;
+                        saveAllData(); renderAllQuotePanels();
+                    } else { alert('该品类下无规格'); renderAllQuotePanels(); }
+                }
+            });
+        });
+        container.querySelectorAll('.quote-spec-select').forEach(sel => {
+            sel.addEventListener('change', (e) => {
+                const id = sel.getAttribute('data-id');
+                const newSpecId = sel.value;
+                const quote = quotes.find(q => q.id === id);
+                if (quote) { quote.specId = newSpecId; saveAllData(); renderAllQuotePanels(); }
+            });
+        });
+        container.querySelectorAll('.quote-quantity').forEach(inp => {
+            inp.addEventListener('change', (e) => {
+                const id = inp.getAttribute('data-id');
+                let qty = parseInt(inp.value); if (isNaN(qty) || qty < 0) qty = 0;
+                const quote = quotes.find(q => q.id === id);
+                if (quote) { quote.quantity = qty; saveAllData(); renderAllQuotePanels(); }
+            });
+        });
+        container.querySelectorAll('.del-quote-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = btn.getAttribute('data-id');
+                const idx = quotes.findIndex(q => q.id === id);
+                if (idx !== -1) { quotes.splice(idx, 1); saveAllData(); renderAllQuotePanels(); }
+            });
+        });
+    }
+
+    function renderAllQuotePanels() {
+        renderQuoteList('grayCraftQuoteList', grayCraftQuotes, true);
+        renderQuoteList('grayMaterialQuoteList', grayMaterialQuotes, false);
+        renderQuoteList('faceCraftQuoteList', faceCraftQuotes, true);
+        renderQuoteList('faceMaterialQuoteList', faceMaterialQuotes, false);
+
+        let grayCraftSum = 0, grayMaterialSum = 0, faceCraftSum = 0, faceMaterialSum = 0;
+        grayCraftQuotes.forEach(q => { const cat = craftItems.find(c => c.id === q.categoryId); if(cat){ const spec = cat.specs.find(s => s.id === q.specId); if(spec) grayCraftSum += spec.price * q.quantity; } });
+        grayMaterialQuotes.forEach(q => { const cat = materialItems.find(c => c.id === q.categoryId); if(cat){ const spec = cat.specs.find(s => s.id === q.specId); if(spec) grayMaterialSum += spec.price * q.quantity; } });
+        faceCraftQuotes.forEach(q => { const cat = craftItems.find(c => c.id === q.categoryId); if(cat){ const spec = cat.specs.find(s => s.id === q.specId); if(spec) faceCraftSum += spec.price * q.quantity; } });
+        faceMaterialQuotes.forEach(q => { const cat = materialItems.find(c => c.id === q.categoryId); if(cat){ const spec = cat.specs.find(s => s.id === q.specId); if(spec) faceMaterialSum += spec.price * q.quantity; } });
+
+        document.getElementById('grayCraftTotal').innerText = grayCraftSum.toFixed(2);
+        document.getElementById('grayMaterialTotal').innerText = grayMaterialSum.toFixed(2);
+        document.getElementById('grayTotal').innerText = (grayCraftSum + grayMaterialSum).toFixed(2);
+        document.getElementById('faceCraftTotal').innerText = faceCraftSum.toFixed(2);
+        document.getElementById('faceMaterialTotal').innerText = faceMaterialSum.toFixed(2);
+        document.getElementById('faceTotal').innerText = (faceCraftSum + faceMaterialSum).toFixed(2);
+
+        const grayTotal = grayCraftSum + grayMaterialSum;
+        const faceTotal = faceCraftSum + faceMaterialSum;
+        const totalCost = grayTotal + faceTotal;
+        document.getElementById('summaryGray').innerText = grayTotal.toFixed(2);
+        document.getElementById('summaryFace').innerText = faceTotal.toFixed(2);
+        document.getElementById('summaryTotal').innerText = totalCost.toFixed(2);
+        updateProfitLabor(totalCost);
+    }
+
+    // 人工渲染
+    function renderLabor() {
+        const container = document.getElementById('laborListContainer');
+        if (!container) return;
+        let html = '';
+        laborItems.forEach(item => {
+            let amount = 0;
+            if (item.type === 'qty_price') amount = (item.quantity || 0) * (item.unitPrice || 0);
+            else amount = item.fixedAmount || 0;
+            html += `<div class="labor-item" data-id="${item.id}">
+                        <input type="text" class="labor-name" value="${escapeHtml(item.name)}" placeholder="名称" style="flex:1;">
+                        <select class="labor-type" style="width:100px;">
+                            <option value="qty_price" ${item.type === 'qty_price' ? 'selected' : ''}>数量×单价</option>
+                            <option value="fixed" ${item.type === 'fixed' ? 'selected' : ''}>固定金额</option>
+                        </select>`;
+            if (item.type === 'qty_price') {
+                html += `<input type="number" class="labor-qty" value="${item.quantity || 1}" placeholder="数量" step="1" min="0" style="width:80px;">
+                         <input type="number" class="labor-price" value="${item.unitPrice || 0}" placeholder="单价" step="0.01" style="width:100px;">
+                         <span style="min-width:70px;">金额: ${amount.toFixed(2)}</span>`;
+            } else {
+                html += `<input type="number" class="labor-fixed" value="${item.fixedAmount || 0}" placeholder="金额" step="0.01" style="width:120px;">
+                         <span style="min-width:70px;">金额: ${amount.toFixed(2)}</span>`;
+            }
+            html += `<button class="btn-sm delete-labor" data-id="${item.id}">删除</button></div>`;
+        });
+        container.innerHTML = html;
+        // 绑定事件
+        container.querySelectorAll('.labor-name').forEach(inp => {
+            inp.addEventListener('change', (e) => { const id = inp.closest('.labor-item').getAttribute('data-id'); const item = laborItems.find(i => i.id === id); if(item){ item.name = inp.value; saveAllData(); renderLabor(); updateProfitLabor(getCurrentTotalCost()); } });
+        });
+        container.querySelectorAll('.labor-type').forEach(sel => {
+            sel.addEventListener('change', (e) => {
+                const id = sel.closest('.labor-item').getAttribute('data-id');
+                const item = laborItems.find(i => i.id === id);
+                if (item) {
+                    const newType = sel.value;
+                    item.type = newType;
+                    if (newType === 'qty_price') {
+                        if (item.quantity === undefined) item.quantity = 1;
+                        if (item.unitPrice === undefined) item.unitPrice = 0;
+                        delete item.fixedAmount;
+                    } else {
+                        if (item.fixedAmount === undefined) item.fixedAmount = 0;
+                        delete item.quantity;
+                        delete item.unitPrice;
+                    }
+                    saveAllData(); renderLabor(); updateProfitLabor(getCurrentTotalCost());
+                }
+            });
+        });
+        container.querySelectorAll('.labor-qty').forEach(inp => {
+            inp.addEventListener('change', (e) => { const id = inp.closest('.labor-item').getAttribute('data-id'); const item = laborItems.find(i => i.id === id); if(item && item.type === 'qty_price') { item.quantity = parseFloat(inp.value) || 0; saveAllData(); renderLabor(); updateProfitLabor(getCurrentTotalCost()); } });
+        });
+        container.querySelectorAll('.labor-price').forEach(inp => {
+            inp.addEventListener('change', (e) => { const id = inp.closest('.labor-item').getAttribute('data-id'); const item = laborItems.find(i => i.id === id); if(item && item.type === 'qty_price') { item.unitPrice = parseFloat(inp.value) || 0; saveAllData(); renderLabor(); updateProfitLabor(getCurrentTotalCost()); } });
+        });
+        container.querySelectorAll('.labor-fixed').forEach(inp => {
+            inp.addEventListener('change', (e) => { const id = inp.closest('.labor-item').getAttribute('data-id'); const item = laborItems.find(i => i.id === id); if(item && item.type === 'fixed') { item.fixedAmount = parseFloat(inp.value) || 0; saveAllData(); renderLabor(); updateProfitLabor(getCurrentTotalCost()); } });
+        });
+        container.querySelectorAll('.delete-labor').forEach(btn => {
+            btn.addEventListener('click', (e) => { const id = btn.getAttribute('data-id'); laborItems = laborItems.filter(i => i.id !== id); saveAllData(); renderLabor(); updateProfitLabor(getCurrentTotalCost()); });
+        });
+    }
+
+    function getCurrentTotalCost() {
+        let gray = parseFloat(document.getElementById('grayTotal').innerText) || 0;
+        let face = parseFloat(document.getElementById('faceTotal').innerText) || 0;
+        return gray + face;
+    }
+
+    function updateProfitLabor(totalCost) {
+        const productQty = parseFloat(document.getElementById('productQty').value) || 1;
+        const profitType = document.getElementById('profitType').value;
+        let profitValue = parseFloat(document.getElementById('profitValue').value);
+        if (isNaN(profitValue)) profitValue = 0;
+        let profitAmount = 0;
+        if (profitType === 'percent') {
+            profitAmount = totalCost * profitValue / 100;
+            document.getElementById('profitLabel').innerText = '利润百分比 (%)';
+        } else {
+            profitAmount = profitValue;
+            document.getElementById('profitLabel').innerText = '利润金额 (元)';
+        }
+        document.getElementById('profitAmount').innerText = profitAmount.toFixed(2);
+
+        const laborTotal = laborItems.reduce((sum, item) => {
+            if (item.type === 'qty_price') return sum + (item.quantity || 0) * (item.unitPrice || 0);
+            else return sum + (item.fixedAmount || 0);
+        }, 0);
+        document.getElementById('laborTotal').innerText = laborTotal.toFixed(2);
+
+        const coefficient = parseFloat(document.getElementById('coefficient').value) || 1;
+        const finalTotal = (totalCost + profitAmount + laborTotal) * coefficient;
+        document.getElementById('finalTotal').innerText = finalTotal.toFixed(2);
+        document.getElementById('unitPrice').innerText = (finalTotal / productQty).toFixed(2);
+    }
+
+    function addLabor() {
+        laborItems.push({ id: generateId(), name: `人工${laborItems.length+1}`, type: 'qty_price', quantity: 1, unitPrice: 0 });
+        saveAllData(); renderLabor(); updateProfitLabor(getCurrentTotalCost());
+    }
+
+    function addCraft() { const name = document.getElementById('newCraftName').value.trim(); if(!name) return alert('请输入工艺名称'); craftItems.push({ id: generateId(), name: name, isOpen: false, specs: [] }); saveAllData(); renderItemsLibrary('craftListContainer', craftItems, 'craft'); renderAllQuotePanels(); document.getElementById('newCraftName').value=''; }
+    function addMaterial() { const name = document.getElementById('newMaterialName').value.trim(); if(!name) return alert('请输入材料名称'); materialItems.push({ id: generateId(), name: name, isOpen: false, specs: [] }); saveAllData(); renderItemsLibrary('materialListContainer', materialItems, 'material'); renderAllQuotePanels(); document.getElementById('newMaterialName').value=''; }
+    function addGrayCraft() { if (craftItems.length === 0) return alert('请先添加工艺'); const first = craftItems.find(c => c.specs.length>0); if(!first) return alert('请为工艺添加规格'); grayCraftQuotes.push({ id: generateId(), categoryId: first.id, specId: first.specs[0].id, quantity: 1 }); saveAllData(); renderAllQuotePanels(); }
+    function addGrayMaterial() { if (materialItems.length === 0) return alert('请先添加材料'); const first = materialItems.find(m => m.specs.length>0); if(!first) return alert('请为材料添加规格'); grayMaterialQuotes.push({ id: generateId(), categoryId: first.id, specId: first.specs[0].id, quantity: 1 }); saveAllData(); renderAllQuotePanels(); }
+    function addFaceCraft() { if (craftItems.length === 0) return alert('请先添加工艺'); const first = craftItems.find(c => c.specs.length>0); if(!first) return alert('请为工艺添加规格'); faceCraftQuotes.push({ id: generateId(), categoryId: first.id, specId: first.specs[0].id, quantity: 1 }); saveAllData(); renderAllQuotePanels(); }
+    function addFaceMaterial() { if (materialItems.length === 0) return alert('请先添加材料'); const first = materialItems.find(m => m.specs.length>0); if(!first) return alert('请为材料添加规格'); faceMaterialQuotes.push({ id: generateId(), categoryId: first.id, specId: first.specs[0].id, quantity: 1 }); saveAllData(); renderAllQuotePanels(); }
+
+    // ==================== 纸张开料计算器 + 智能微调建议 ====================
+    let paperSchemes = [];
+    function loadPaperSchemes() {
+        const stored = localStorage.getItem('paper_schemes_v7');
+        if(stored) { try { paperSchemes = JSON.parse(stored); } catch(e) { paperSchemes = []; } }
+        if(paperSchemes.length === 0) {
+            paperSchemes.push({ id: generateId(), name: "默认方案", paperW: 787, paperH: 1092, prodW: 210, prodH: 297, margin: 5, gap: 3, isOpen: true, result: null });
+        }
+        renderPaperSchemes();
+    }
+    function savePaperSchemes() { localStorage.setItem('paper_schemes_v7', JSON.stringify(paperSchemes)); }
+
+    // 核心计算函数
+    function calcLayout(paperW, paperH, prodW, prodH, margin, gap) {
+        const usableW = paperW - 2*margin, usableH = paperH - 2*margin;
+        if(usableW <=0 || usableH <=0) return { count:0, cols:0, rows:0, rotated:false };
+        function getCount(w,h) {
+            if(w > usableW || h > usableH) return { count:0, cols:0, rows:0 };
+            const cols = Math.floor((usableW + gap) / (w + gap));
+            const rows = Math.floor((usableH + gap) / (h + gap));
+            return { count: cols*rows, cols, rows };
+        }
+        const normal = getCount(prodW, prodH);
+        const rotated = getCount(prodH, prodW);
+        if(normal.count >= rotated.count) return { ...normal, rotated: false };
+        else return { ...rotated, rotated: true, finalW: prodH, finalH: prodW };
+    }
+
+    // 微调优化：限制在±5mm范围内，步长1mm，寻找能提升利用率到93%以上的尺寸
+    function findFineTune(paperW, paperH, prodW, prodH, margin, gap, currentCount, currentRate) {
+        // 如果当前利用率已经≥93%，不需要调整
+        if (currentRate >= 93) return null;
+        
+        const usableW = paperW - 2*margin;
+        const usableH = paperH - 2*margin;
+        let bestCount = currentCount;
+        let bestW = prodW, bestH = prodH;
+        let bestRotated = false;
+        let bestRate = currentRate;
+        
+        // 搜索范围：原尺寸的 ±5mm，且保证最小5mm，不超过可用区域
+        const minW = Math.max(5, prodW - 5);
+        const maxW = Math.min(usableW, prodW + 5);
+        const minH = Math.max(5, prodH - 5);
+        const maxH = Math.min(usableH, prodH + 5);
+        
+        for (let w = minW; w <= maxW; w++) {
+            for (let h = minH; h <= maxH; h++) {
+                const layout = calcLayout(paperW, paperH, w, h, margin, gap);
+                if (layout.count > bestCount) {
+                    bestCount = layout.count;
+                    bestW = w; bestH = h;
+                    bestRotated = layout.rotated;
+                    bestRate = (bestCount * w * h) / (paperW * paperH) * 100;
+                }
+            }
+        }
+        
+        // 如果找到了更好的方案，且新利用率≥93%，则返回建议
+        if (bestCount > currentCount && bestRate >= 93) {
+            return { width: bestW, height: bestH, count: bestCount, rotated: bestRotated, rate: bestRate };
+        }
+        return null;
+    }
+
+    function calculateLayout(scheme) {
+        const paperW = scheme.paperW, paperH = scheme.paperH, prodW = scheme.prodW, prodH = scheme.prodH, margin = scheme.margin, gap = scheme.gap;
+        const usableW = paperW - 2*margin, usableH = paperH - 2*margin;
+        if(usableW <=0 || usableH <=0) return { count:0, cols:0, rows:0, rotated:false, advice: "⚠️ 纸张可用区域为负，请检查边距或纸张尺寸" };
+        
+        const layout = calcLayout(paperW, paperH, prodW, prodH, margin, gap);
+        const finalW = layout.rotated ? prodH : prodW;
+        const finalH = layout.rotated ? prodW : prodH;
+        const count = layout.count;
+        const areaRate = (count * finalW * finalH) / (paperW * paperH) * 100;
+        
+        let advice = `📌 当前排布：${layout.rotated ? "旋转90°后" : "正常方向"}，横向${layout.cols}个，纵向${layout.rows}个，纸张利用率 ${areaRate.toFixed(1)}%。`;
+        
+        if (count === 0) {
+            advice += ` ⚠️ 当前参数无法排下任何成品，请减小成品尺寸或增大纸张/减小边距间距。`;
+        } else if (areaRate >= 93) {
+            advice += ` ✅ 利用率已达优秀水平（≥93%），无需调整。`;
+        } else {
+            // 尝试微调（±5mm）
+            const tuned = findFineTune(paperW, paperH, prodW, prodH, margin, gap, count, areaRate);
+            if (tuned) {
+                advice += ` 💡 微调建议：若将成品尺寸调整为 ${tuned.width}×${tuned.height} mm${tuned.rotated ? '（建议旋转）' : ''}，可开 ${tuned.count} 个，利用率提升至 ${tuned.rate.toFixed(1)}%。`;
+            } else {
+                advice += ` 📏 当前利用率较低，但在±5mm范围内无法达到93%利用率。可尝试减小边缘留白或成品间距，或适当放宽尺寸调整范围。`;
+            }
+        }
+        
+        return { count: layout.count, cols: layout.cols, rows: layout.rows, rotated: layout.rotated, finalW, finalH, advice };
+    }
+
+    function renderPaperSchemes() {
+        const container = document.getElementById('paperSchemesContainer');
+        if(!container) return;
+        let html = '';
+        paperSchemes.forEach((scheme) => {
+            const result = calculateLayout(scheme);
+            scheme.result = result;
+            html += `<div class="scheme-item" data-id="${scheme.id}">
+                        <div class="scheme-header">
+                            <div class="scheme-title">
+                                <span class="toggle-icon">${scheme.isOpen ? '▼' : '▶'}</span>
+                                <input type="text" class="scheme-name-input" value="${escapeHtml(scheme.name)}" data-id="${scheme.id}" style="width:120px;">
+                            </div>
+                            <div class="scheme-actions">
+                                <button class="btn-sm delete-scheme-btn" data-id="${scheme.id}">删除</button>
+                            </div>
+                        </div>
+                        <div class="scheme-content ${scheme.isOpen ? 'open' : ''}">
+                            <div class="calc-grid">
+                                <div class="calc-group"><label>纸张宽度(mm)</label><input type="number" class="scheme-paperW" value="${scheme.paperW}" step="1"></div>
+                                <div class="calc-group"><label>纸张高度(mm)</label><input type="number" class="scheme-paperH" value="${scheme.paperH}" step="1"></div>
+                                <div class="calc-group"><label>成品宽度(mm)</label><input type="number" class="scheme-prodW" value="${scheme.prodW}" step="1"></div>
+                                <div class="calc-group"><label>成品高度(mm)</label><input type="number" class="scheme-prodH" value="${scheme.prodH}" step="1"></div>
+                                <div class="calc-group"><label>边缘留白(mm)</label><input type="number" class="scheme-margin" value="${scheme.margin}" step="0.5"></div>
+                                <div class="calc-group"><label>成品间距(mm)</label><input type="number" class="scheme-gap" value="${scheme.gap}" step="0.5"></div>
+                            </div>
+                            <button class="btn-sm recalc-scheme" data-id="${scheme.id}">重新计算</button>
+                            <div class="result-area">
+                                <div class="result-main">📐 单张可开：<strong>${result.count}</strong> 个成品</div>
+                                <div>排布：${result.rotated ? '旋转后' : '正常方向'}，横向 ${result.cols} 个 × 纵向 ${result.rows} 个，成品尺寸 ${result.finalW}×${result.finalH} mm</div>
+                                <div class="advice">${result.advice}</div>
+                            </div>
+                        </div>
+                    </div>`;
+        });
+        container.innerHTML = html;
+
+        // 绑定事件
+        document.querySelectorAll('.scheme-header').forEach(header => {
+            header.addEventListener('click', (e) => {
+                if(e.target.classList.contains('delete-scheme-btn') || e.target.classList.contains('scheme-name-input')) return;
+                const schemeDiv = header.closest('.scheme-item');
+                const id = schemeDiv.getAttribute('data-id');
+                const scheme = paperSchemes.find(s => s.id === id);
+                if(scheme){ scheme.isOpen = !scheme.isOpen; savePaperSchemes(); renderPaperSchemes(); }
+            });
+        });
+        document.querySelectorAll('.scheme-name-input').forEach(inp => {
+            inp.addEventListener('change', (e) => {
+                e.stopPropagation();
+                const id = inp.getAttribute('data-id');
+                const scheme = paperSchemes.find(s => s.id === id);
+                if(scheme){ scheme.name = inp.value; savePaperSchemes(); renderPaperSchemes(); }
+            });
+        });
+        document.querySelectorAll('.delete-scheme-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = btn.getAttribute('data-id');
+                paperSchemes = paperSchemes.filter(s => s.id !== id);
+                savePaperSchemes(); renderPaperSchemes();
+            });
+        });
+        document.querySelectorAll('.recalc-scheme').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const schemeDiv = btn.closest('.scheme-item');
+                const id = schemeDiv.getAttribute('data-id');
+                const scheme = paperSchemes.find(s => s.id === id);
+                if(scheme){
+                    const paperW = parseFloat(schemeDiv.querySelector('.scheme-paperW').value);
+                    const paperH = parseFloat(schemeDiv.querySelector('.scheme-paperH').value);
+                    const prodW = parseFloat(schemeDiv.querySelector('.scheme-prodW').value);
+                    const prodH = parseFloat(schemeDiv.querySelector('.scheme-prodH').value);
+                    const margin = parseFloat(schemeDiv.querySelector('.scheme-margin').value);
+                    const gap = parseFloat(schemeDiv.querySelector('.scheme-gap').value);
+                    if(isNaN(paperW)||isNaN(paperH)||isNaN(prodW)||isNaN(prodH)||isNaN(margin)||isNaN(gap)){ alert("请输入有效数字"); return; }
+                    scheme.paperW = paperW; scheme.paperH = paperH; scheme.prodW = prodW; scheme.prodH = prodH; scheme.margin = margin; scheme.gap = gap;
+                    scheme.result = null;
+                    savePaperSchemes(); renderPaperSchemes();
+                }
+            });
+        });
+    }
+    function addPaperScheme() {
+        paperSchemes.push({ id: generateId(), name: `方案${paperSchemes.length+1}`, paperW: 787, paperH: 1092, prodW: 210, prodH: 297, margin: 5, gap: 3, isOpen: true, result: null });
+        savePaperSchemes(); renderPaperSchemes();
+    }
+
+    // ==================== 纸张需求计算器 ====================
+    let demandItems = [];
+    function loadDemands() {
+        const stored = localStorage.getItem('demand_items_v7');
+        if(stored) { try { demandItems = JSON.parse(stored); } catch(e) { demandItems = []; } }
+        if(demandItems.length === 0) demandItems.push({ id: generateId(), name: "订单A", quantity: 1000, sheetsPerUnit: 4 });
+        renderDemands();
+    }
+    function saveDemands() { localStorage.setItem('demand_items_v7', JSON.stringify(demandItems)); }
+    function renderDemands() {
+        const container = document.getElementById('demandListContainer');
+        if(!container) return;
+        let html = '';
+        demandItems.forEach(item => {
+            const sheetsNeeded = Math.ceil(item.quantity / item.sheetsPerUnit);
+            html += `<div class="demand-row" data-id="${item.id}">
+                        <input type="text" class="demand-name" value="${escapeHtml(item.name)}" placeholder="名称" style="flex:1.2;">
+                        <input type="number" class="demand-qty" value="${item.quantity}" placeholder="所需数量" style="flex:1;">
+                        <input type="number" class="demand-sheets" value="${item.sheetsPerUnit}" placeholder="单张开数" step="0.01" style="flex:1;">
+                        <span style="min-width:80px;">需纸张: ${sheetsNeeded} 张</span>
+                        <button class="btn-sm delete-demand" data-id="${item.id}">✕</button>
+                    </div>`;
+        });
+        container.innerHTML = html;
+        // 绑定事件
+        document.querySelectorAll('.demand-name').forEach(inp => {
+            inp.addEventListener('change', (e) => { const id = inp.closest('.demand-row').getAttribute('data-id'); const item = demandItems.find(i => i.id === id); if(item){ item.name = inp.value; saveDemands(); renderDemands(); } });
+        });
+        document.querySelectorAll('.demand-qty').forEach(inp => {
+            inp.addEventListener('change', (e) => { const id = inp.closest('.demand-row').getAttribute('data-id'); const item = demandItems.find(i => i.id === id); if(item){ let v = parseInt(inp.value); if(isNaN(v)) v=0; item.quantity = v; saveDemands(); renderDemands(); } });
+        });
+        document.querySelectorAll('.demand-sheets').forEach(inp => {
+            inp.addEventListener('change', (e) => { const id = inp.closest('.demand-row').getAttribute('data-id'); const item = demandItems.find(i => i.id === id); if(item){ let v = parseFloat(inp.value); if(isNaN(v)) v=0; item.sheetsPerUnit = v; saveDemands(); renderDemands(); } });
+        });
+        document.querySelectorAll('.delete-demand').forEach(btn => {
+            btn.addEventListener('click', (e) => { const id = btn.getAttribute('data-id'); demandItems = demandItems.filter(i => i.id !== id); saveDemands(); renderDemands(); });
+        });
+        const totalSheets = demandItems.reduce((sum, item) => sum + Math.ceil(item.quantity / item.sheetsPerUnit), 0);
+        document.getElementById('totalPaperNeeded').innerHTML = `📊 总计需要纸张：${totalSheets} 张`;
+    }
+    function addDemand() {
+        demandItems.push({ id: generateId(), name: `需求${demandItems.length+1}`, quantity: 100, sheetsPerUnit: 1 });
+        saveDemands(); renderDemands();
+    }
+
+    // 折叠控制
+    function toggleLibraryCard(cardId, iconId, restoreBtnId) {
+        const card = document.getElementById(cardId);
+        const icon = document.getElementById(iconId);
+        const restoreBtn = document.getElementById(restoreBtnId);
+        if (card.style.display === 'none') {
+            card.style.display = 'block';
+            icon.innerHTML = '▼';
+            if(restoreBtn) restoreBtn.style.display = 'none';
+            checkRestorePanelButtons();
+        } else {
+            card.style.display = 'none';
+            icon.innerHTML = '▶';
+            if(restoreBtn) restoreBtn.style.display = 'inline-block';
+            document.getElementById('restorePanelButtons').style.display = 'flex';
+        }
+    }
+    function toggleCard(headerId, contentId, iconId) {
+        const content = document.getElementById(contentId);
+        const icon = document.getElementById(iconId);
+        if(content.style.display === 'none') { content.style.display = 'block'; icon.innerHTML = '▼'; }
+        else { content.style.display = 'none'; icon.innerHTML = '▶'; }
+    }
+    function checkRestorePanelButtons() {
+        const craftCard = document.getElementById('craftCard');
+        const materialCard = document.getElementById('materialCard');
+        const restoreContainer = document.getElementById('restorePanelButtons');
+        if(craftCard.style.display !== 'none' && materialCard.style.display !== 'none') {
+            restoreContainer.style.display = 'none';
+        }
+    }
+    function restorePanel(panelId, iconId, restoreBtnId) {
+        const panel = document.getElementById(panelId);
+        const icon = document.getElementById(iconId);
+        const restoreBtn = document.getElementById(restoreBtnId);
+        if(panel) {
+            panel.style.display = 'block';
+            icon.innerHTML = '▼';
+            if(restoreBtn) restoreBtn.style.display = 'none';
+        }
+        checkRestorePanelButtons();
+    }
+
+    function bindProfitEvents() {
+        document.getElementById('productQty').addEventListener('input', () => updateProfitLabor(getCurrentTotalCost()));
+        document.getElementById('profitType').addEventListener('change', () => updateProfitLabor(getCurrentTotalCost()));
+        document.getElementById('profitValue').addEventListener('input', () => updateProfitLabor(getCurrentTotalCost()));
+        document.getElementById('coefficient').addEventListener('input', () => updateProfitLabor(getCurrentTotalCost()));
+    }
+
+    function init() {
+        initData();
+        renderItemsLibrary('craftListContainer', craftItems, 'craft');
+        renderItemsLibrary('materialListContainer', materialItems, 'material');
+        renderAllQuotePanels();
+        renderLabor();
+        loadPaperSchemes();
+        loadDemands();
+        bindProfitEvents();
+
+        document.getElementById('addCraftBtn').onclick = addCraft;
+        document.getElementById('addMaterialBtn').onclick = addMaterial;
+        document.getElementById('addGrayCraftQuoteBtn').onclick = addGrayCraft;
+        document.getElementById('addGrayMaterialQuoteBtn').onclick = addGrayMaterial;
+        document.getElementById('addFaceCraftQuoteBtn').onclick = addFaceCraft;
+        document.getElementById('addFaceMaterialQuoteBtn').onclick = addFaceMaterial;
+        document.getElementById('addLaborBtn').onclick = addLabor;
+        document.getElementById('addPaperSchemeBtn').onclick = addPaperScheme;
+        document.getElementById('addDemandBtn').onclick = addDemand;
+
+        document.getElementById('craftCollapseHeader').onclick = () => toggleLibraryCard('craftCard', 'craftToggleIcon', 'restoreCraftBtn');
+        document.getElementById('materialCollapseHeader').onclick = () => toggleLibraryCard('materialCard', 'materialToggleIcon', 'restoreMaterialBtn');
+        document.getElementById('paperCalcHeader').onclick = () => toggleCard('paperCalcHeader', 'paperCalcContent', 'paperCalcToggleIcon');
+        document.getElementById('paperDemandHeader').onclick = () => toggleCard('paperDemandHeader', 'paperDemandContent', 'demandToggleIcon');
+
+        document.getElementById('restoreCraftBtn').onclick = () => restorePanel('craftCard', 'craftToggleIcon', 'restoreCraftBtn');
+        document.getElementById('restoreMaterialBtn').onclick = () => restorePanel('materialCard', 'materialToggleIcon', 'restoreMaterialBtn');
+
+        document.getElementById('paperCalcContent').style.display = 'block';
+        document.getElementById('paperDemandContent').style.display = 'block';
+        document.getElementById('craftCard').style.display = 'block';
+        document.getElementById('materialCard').style.display = 'block';
+    }
+
+    init();
+</script>
+</body>
+</html>
+```
